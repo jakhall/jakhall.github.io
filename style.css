@@ -27,17 +27,67 @@ body {
 	}
 }
 
-
 #title h1 {
   color: #fff;
   font-size: 5em;
 }
-
-
 #title .title-container {
   margin-top: 100px;
   margin-left: 15%;
   display: inline-block;
   width: auto;
   animation: float 5s ease-in-out infinite;
+}
+
+
+
+.sort-wrapper {
+  margin-top: 100px;
+  margin-left: 20%;
+  display: inline-block;
+}
+
+
+
+.letter {
+  font-size: 4em;
+  position:absolute;
+  display: block;
+  color: #fff;
+}
+
+.letter[data-num="1"] {
+  margin-left: 4%;
+  transition: ease 0.6s all;
+}
+
+.letter[data-num="2"] {
+  margin-left: 8%;
+  transition: ease 0.6s all;
+}
+
+.letter[data-num="3"] {
+  margin-left: 12%;
+  transition: ease 0.6s all;
+}
+
+.letter[data-num="4"] {
+  margin-left: 16%;
+  transition: ease 0.6s all;
+}
+
+.letter[data-org="1"] {
+  font-size: 4em;
+}
+
+.letter[data-org="2"] {
+  font-size: 5em;
+}
+
+.letter[data-org="3"] {
+  font-size: 6em;
+}
+
+.letter[data-org="4"] {
+  font-size: 7em;
 }
