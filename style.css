@@ -1,4 +1,9 @@
 
+
+/*
+Index Page
+*/
+
 * {
   font-family: sans-serif;
   margin: 0px;
@@ -40,7 +45,9 @@ body {
 }
 
 
-
+/*
+Sort Page
+*/
 .sort-wrapper {
   margin-top: 100px;
   margin-left: 20%;
@@ -90,4 +97,11 @@ body {
 
 .letter[data-org="4"] {
   font-size: 7em;
+}
+
+/*
+Canvas Page
+*/
+
+#background {
 }

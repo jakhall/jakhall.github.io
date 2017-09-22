@@ -1,0 +1,171 @@
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+<link rel="stylesheet" type="text/css" href="normalize.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+
+
+<body>
+
+<canvas id="galaxy"> </canvas>
+
+<script src="three.js"> </script>
+<script src="orbital.js"> </script>
+
+<script>
+  var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('galaxy'), antialias: true});
+  renderer.setClearColor(0x202020);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  var camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 3000);
+  //var camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
+  var scene = new THREE.Scene();
+camera.position.z = 200;
+  var controls;
+
+  controls = new THREE.OrbitControls(camera);
+  //controls.addEventListener('change', render);
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 1;
+  controls.enablePan = false;
+
+
+  var ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambient);
+
+  var pointLight1 = new THREE.PointLight(0x99ff99, 0.5);
+  pointLight1.position.y = 1000;
+  scene.add(pointLight1);
+
+
+  var geometry = new THREE.CubeGeometry(50, 50, 50);
+  var materialBlue = new THREE.MeshLambertMaterial({color: 0x70dbdb});
+  var materialWhite = new THREE.MeshLambertMaterial({color: 0xffffff});
+
+
+ var arrNode = new Array();
+
+
+ createNode(0, 0, 0, null);
+
+
+createNode(-25, 0, 0, [arrNode[0]]);
+
+createNode(25, 0, 0, [arrNode[0]]);
+
+createNode(0, 0, -25, [arrNode[0]]);
+
+createNode(-0, -0, 25, [arrNode[0]]);
+
+createNode(-0, 25, 0, [arrNode[0]]);
+
+createNode(-0, -25, 0, [arrNode[0]]);
+
+
+
+
+
+
+
+
+drawAllNodes();
+
+ function drawAllNodes(){
+   for(var i = 0; i < arrNode.length; i++){
+     drawNode(arrNode[i]);
+   }
+ }
+
+
+function createNode(x, y, z, arr){
+    var node = {
+      nodeX: x,
+      nodeY: y,
+      nodeZ: z,
+      connected: arr
+   };
+
+   arrNode.push(node);
+   return node;
+ }
+
+function drawNode(node){
+  var nodeShape = new THREE.SphereGeometry(5, 8, 8);
+  var nodeMesh = new THREE.Mesh(nodeShape, materialBlue);
+  nodeMesh.position.set(node.nodeX, node.nodeY, node.nodeZ);
+
+  if(node.connected != null) {
+  for(var i = 0; i < node.connected.length; i++){
+
+    if(node.connected[i] != null){
+
+      var cX = node.connected[i].nodeX
+      var cY = node.connected[i].nodeY
+      var cZ = node.connected[i].nodeZ
+
+      var oX = node.nodeX
+      var oY = node.nodeY
+      var oZ = node.nodeZ
+
+      var length = Math.sqrt(Math.pow((node.connected[i].nodeX - node.nodeX), 2) + Math.pow((node.connected[i].nodeY - node.nodeY), 2) + Math.pow((node.connected[i].nodeZ - node.nodeZ), 2));
+      var connectorShape = new THREE.CylinderGeometry( 1, 1, length, 16 );
+      var connectorMesh = new THREE.Mesh(connectorShape, materialWhite);
+
+      connectorMesh.geometry.rotateX( Math.PI / 2 );
+      connectorMesh.position.set((node.connected[i].nodeX + node.nodeX)/2, (node.connected[i].nodeY + node.nodeY)/2, (node.connected[i].nodeZ + node.nodeZ)/2 );
+
+
+
+      var startPoint   = new THREE.Vector3(cX, cY, cZ);
+
+
+      var endPoint = new THREE.Vector3(oX, oY, oZ);
+
+      var direction = new THREE.Vector3().subVectors(endPoint, startPoint).normalize();
+
+     connectorMesh.lookAt(direction);
+
+      scene.add(connectorMesh);
+
+    }
+  }
+}
+
+var wireframe = new THREE.WireframeGeometry( nodeShape );
+
+
+var lineMaterial = new THREE.MeshLambertMaterial({color: 0x0000ff});
+var line = new THREE.LineSegments( wireframe, lineMaterial );
+line.material.depthTest = true;
+line.material.opacity = 0.3;
+line.material.transparent = true;
+
+line.position.set(node.nodeX, node.nodeY, node.nodeZ);
+
+
+  scene.add( line );
+  scene.add(nodeMesh);
+}
+
+render();
+
+function render(){
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+}
+
+
+
+</script>
+
+</body>
+
+</html>
