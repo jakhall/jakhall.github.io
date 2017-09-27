@@ -17,17 +17,20 @@
 
 <script src="three.js"> </script>
 <script src="orbital.js"> </script>
+<script src="stats.js"> </script>
 
 <script>
   var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('galaxy'), antialias: true});
-  renderer.setClearColor(0x202020);
+  renderer.setClearColor(0x101010);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 6000);
+  var camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 6000);
   //var camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
   var scene = new THREE.Scene();
-camera.position.z = 200;
+camera.position.z = 800;
+
+
   var controls;
 
   controls = new THREE.OrbitControls(camera);
@@ -47,45 +50,51 @@ camera.position.z = 200;
 
   var geometry = new THREE.CubeGeometry(50, 50, 50);
 //  var materialBlue = new THREE.MeshLambertMaterial({color: 0x70dbdb});
+
+
+
+ var randomColor = Math.random() * 0xffffff;
+
   var materialBlue = new THREE.MeshLambertMaterial({color: 0xffffff});
 
-  //var materialBlue = new THREE.MeshLambertMaterial({color: 0xff3333});
-  var materialWhite = new THREE.MeshLambertMaterial({color: 0xffffff});
+  materialBlue.transparent = true;
+  materialBlue.opacity = 0.5;
+
+  var materialWhite = new THREE.MeshLambertMaterial({color: 0x00ffcc});
+  materialWhite.transparent = true;
+  materialWhite.opacity = 0.2;
+
+
 
 
  var arrNode = new Array();
+ var arrActive = new Array();
 
-
-
-/*
-createNode(0, 0, 0, null);
-createNode(0, 0, -25, [arrNode[0]]);
-createNode(0, 0, 25, [arrNode[0]]);
-createNode(0, 0, -50, [arrNode[0]]);
-createNode(0, 0, 50, [arrNode[0]]);
-createNode(0, 0, -75, [arrNode[0]]);
-createNode(0, 0, 75, [arrNode[0]]);
-createNode(25, 0, 0, [arrNode[0]]);
-createNode(-25, 0, 0, [arrNode[0]]);
-createNode(50, 0, 0, [arrNode[0]]);
-createNode(-50, 0, 0, [arrNode[0]]);
-createNode(-75, 0, 0, [arrNode[0]]);
-createNode(75, 0, 0, [arrNode[0]]);
-
-*/
 
 var currentIndex = 0;
-var spread = 30;
+var spread = 250;
+
+var nodeSize = 5;
+
+var linkWidth = 1.5;
+
 var currentX = 0;
 var currentY = 0;
 var currentZ = 0;
-var nodeCount = 100;
 
+var nodeCount = 10;
+
+
+var exclusionZone = 50;
+var deviationLimit = 3;
+var connectionLimit = 2.5;
 
 for(var i = 0; i < nodeCount; i++){
-    currentX = currentX + (Math.random() * spread) - spread/2;
-    currentY = currentY + (Math.random() * spread/2) - spread/4;
-    currentZ = currentZ + (Math.random() * spread) - spread/2;
+
+
+currentX = randomExclusion(1*spread, -0.5*spread, currentX, exclusionZone);
+currentY = randomExclusion(1*spread, -0.5*spread, currentY, exclusionZone);
+currentZ = randomExclusion(1*spread, -0.5*spread, currentZ, exclusionZone);
 
 
     //alert(currentX + " " + currentY + " " + currentZ);
@@ -93,10 +102,33 @@ for(var i = 0; i < nodeCount; i++){
 }
 
 for(var i = 0; i < nodeCount; i++){
-  index =  Math.abs(i + Math.floor(Math.random() * 10) - 5);
-  arrNode[i].connected[0] = arrNode[i + 1];
+  var connections = randomInt(connectionLimit, 1.5);
+  var deviation;
+
+  for(var j = 0; j < connections; j++){
+    deviation = -(nodeCount + 1);
+    while(((i + deviation) < 0) || ((i + deviation) >= nodeCount) || (deviation == 0)){
+      deviation = randomInt(deviationLimit, -deviationLimit/2);
+    }
+    //alert("Node Count: " + nodeCount + " Selected Index: " + (i + deviation) + " Current Node: " + i );
+    arrNode[i].connected[j] = (arrNode[i + deviation]);
+  }
 }
 
+function randomExclusion(max, min, exclusion, zone){
+  var x = exclusion;
+  while((x < (exclusion + zone)) && (x > (exclusion - zone))){
+    x = exclusion/1.1 + (Math.random()*max) + min;
+  }
+  return x;
+}
+
+
+
+function randomInt(max, min){
+  var random = Math.floor((Math.random() * max) + min);
+  return random;
+}
 //createNode(0, 0, 0, null);
 
 drawAllNodes();
@@ -113,16 +145,22 @@ function createNode(x, y, z, arr){
       nodeX: x,
       nodeY: y,
       nodeZ: z,
-      connected: arr
+      connected: new Array (),
+      active: 0,
+      vector: new THREE.Vector3(0, 0, 0),
+      mesh: null,
+      startLinks: new Array(),
+      endLinks: new Array()
    };
 
-   arrNode.push(node);
+    node.connected.push(arr);
+    arrNode.push(node);
    return node;
 
 }
 
 function drawNode(node){
-  var nodeShape = new THREE.SphereGeometry(1.5, 8, 8);
+  var nodeShape = new THREE.SphereGeometry((Math.random()*0.5) + nodeSize, 8, 8);
   var nodeMesh = new THREE.Mesh(nodeShape, materialBlue);
   nodeMesh.position.set(node.nodeX, node.nodeY, node.nodeZ);
 
@@ -137,7 +175,9 @@ function drawNode(node){
 
 
       var length = Math.sqrt(Math.pow((node.connected[i].nodeX - node.nodeX), 2) + Math.pow((node.connected[i].nodeY - node.nodeY), 2) + Math.pow((node.connected[i].nodeZ - node.nodeZ), 2));
-      var connectorShape = new THREE.CylinderGeometry( 0.1, 0.1, length, 6 );
+      var connectorShape = new THREE.CylinderGeometry( linkWidth, linkWidth, length, 6 );
+
+
       var connectorMesh = new THREE.Mesh(connectorShape, materialWhite);
 
       connectorMesh.geometry.rotateX( Math.PI / 2 );
@@ -152,35 +192,131 @@ function drawNode(node){
 
      connectorMesh.lookAt(endPoint);
 
-
+     var link = createLink(connectorMesh, node, node.connected[i]);
       scene.add(connectorMesh);
+
+
+
+      var wireframe = new THREE.WireframeGeometry( nodeShape );
+
+
+      var lineMaterial = new THREE.MeshLambertMaterial({color: 0x111111});
+      var line = new THREE.LineSegments( wireframe, lineMaterial );
+      line.material.depthTest = false;
+      line.material.opacity = 0.1;
+      line.material.transparent = true;
+
+      //line.position.set(node.nodeX, node.nodeY, node.nodeZ);
+
+
+        //nodeMesh.add( line );
+
 
 
     }
   }
 }
 
-var wireframe = new THREE.WireframeGeometry( nodeShape );
 
+function createLink(linkMesh, startNode, endNode){
+   link = {
+     mesh: connectorMesh,
+     start: startNode,
+     end: endNode
+   }
+   startNode.startLinks.push(link);
+   endNode.endLinks.push(link);
 
-var lineMaterial = new THREE.MeshLambertMaterial({color: 0x111111});
-var line = new THREE.LineSegments( wireframe, lineMaterial );
-line.material.depthTest = true;
-line.material.opacity = 0.2;
-line.material.transparent = true;
-
-line.position.set(node.nodeX, node.nodeY, node.nodeZ);
-
-
-  scene.add( line );
-  scene.add(nodeMesh);
 }
 
+/**
+var pl = new THREE.PointLight(0x0000ff, 2.5, 100, 2);
+
+
+pl.position.x = node.nodeX;
+pl.position.y = node.nodeY;
+pl.position.z = node.nodeZ;
+**/
+
+
+node.mesh = nodeMesh;
+scene.add(nodeMesh)
+//scene.add(pl);
+
+
+}
+
+
+
+
+
+function updateLink(node){
+
+
+    newPosition = new THREE.Vector3(node.nodeX, node.nodeY, node.nodeZ);
+
+    var direction = new THREE.Vector3().subVectors(newPosition, new THREE.Vector3(0,0,0)).normalize();
+
+      for(var i = 0; i < node.startLinks.length; i++){
+          var length = Math.sqrt(Math.pow((node.startLinks[i].end.nodeX - node.nodeX), 2) + Math.pow((node.startLinks[i].end.nodeY - node.nodeY), 2) + Math.pow((node.startLinks[i].end.nodeZ - node.nodeZ), 2));
+          node.startLinks[i].mesh.geometry = (new THREE.CylinderGeometry( linkWidth, linkWidth, length, 6 ));
+          node.startLinks[i].mesh.geometry.rotateX( Math.PI / 2 );
+          node.startLinks[i].mesh.position.set((node.startLinks[i].end.nodeX + node.nodeX)/2, (node.startLinks[i].end.nodeY + node.nodeY)/2, (node.startLinks[i].end.nodeZ + node.nodeZ)/2 );
+
+          node.startLinks[i].mesh.lookAt(newPosition);
+       }
+
+       for(var i = 0; i < node.endLinks.length; i++){
+           var length = Math.sqrt(Math.pow((node.endLinks[i].start.nodeX - node.nodeX), 2) + Math.pow((node.endLinks[i].start.nodeY - node.nodeY), 2) + Math.pow((node.endLinks[i].start.nodeZ - node.nodeZ), 2));
+           node.endLinks[i].mesh.geometry = (new THREE.CylinderGeometry( linkWidth, linkWidth, length, 6 ));
+           node.endLinks[i].mesh.geometry.rotateX( Math.PI / 2 );
+           node.endLinks[i].mesh.position.set((node.endLinks[i].start.nodeX + node.nodeX)/2, (node.endLinks[i].start.nodeY + node.nodeY)/2, (node.endLinks[i].start.nodeZ + node.nodeZ)/2 );
+
+           node.endLinks[i].mesh.lookAt(newPosition);
+        }
+
+
+}
 
 
 render();
 
 function render(){
+
+ var nodeSpeed = 0.3;
+ var nodeDuration = 150;
+
+
+if(Math.random() > 0.96){
+  for(var i = 0; i < arrNode.length; i++){
+    if(arrNode[i].active == 0){
+      if(Math.random() > 0.96){
+        arrActive.push(arrNode[i]);
+        arrNode[i].active = nodeDuration;
+        arrNode[i].vector = new THREE.Vector3((Math.random()*nodeSpeed) - nodeSpeed/2, (Math.random()*nodeSpeed) - nodeSpeed/2,(Math.random()*nodeSpeed) - nodeSpeed/2);
+      }
+    }
+  }
+}
+
+    for(var i = 0; i < arrActive.length; i++) {
+
+        arrActive[i].mesh.position.x += arrActive[i].vector.x;
+        arrActive[i].mesh.position.y += arrActive[i].vector.y;
+        arrActive[i].mesh.position.z += arrActive[i].vector.z;
+        arrActive[i].nodeX += arrActive[i].vector.x;
+        arrActive[i].nodeY += arrActive[i].vector.y;
+        arrActive[i].nodeZ += arrActive[i].vector.z;
+
+        arrActive[i].active--;
+        updateLink(arrActive[i]);
+
+        if(arrActive[i].active == 0){
+          arrActive[i].vector = new THREE.Vector3(0,0,0);
+          arrActive.splice(i, 1);
+        }
+
+  }
 
   controls.update();
   renderer.render(scene, camera);
