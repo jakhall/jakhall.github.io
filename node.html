@@ -15,20 +15,29 @@
 
 <canvas id="galaxy"> </canvas>
 
+<h1> JH Design </h1>
+
+
+
+
+
+
+
+
+
 <script src="three.js"> </script>
 <script src="orbital.js"> </script>
-<script src="stats.js"> </script>
 
 <script>
   var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('galaxy'), antialias: true});
-  renderer.setClearColor(0x101010);
+  renderer.setClearColor(0x151515);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   var camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 6000);
   //var camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
   var scene = new THREE.Scene();
-camera.position.z = 800;
+camera.position.z = 1000;
 
 
   var controls;
@@ -43,9 +52,17 @@ camera.position.z = 800;
   var ambient = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambient);
 
-  var pointLight1 = new THREE.PointLight(0x99ff99, 0.5);
-  pointLight1.position.y = 1000;
+
+  //0x99ff99
+
+  var pointLight1 = new THREE.PointLight(0x3399ff, 1);
+  pointLight1.position.y = 2000;
   scene.add(pointLight1);
+
+  var pointLight2 = new THREE.PointLight(0x3333cc, 1);
+  pointLight2.position.y = -2000;
+  scene.add(pointLight2);
+
 
 
   var geometry = new THREE.CubeGeometry(50, 50, 50);
@@ -58,12 +75,11 @@ camera.position.z = 800;
   var materialBlue = new THREE.MeshLambertMaterial({color: 0xffffff});
 
   materialBlue.transparent = true;
-  materialBlue.opacity = 0.5;
+  materialBlue.opacity = 1;
 
-  var materialWhite = new THREE.MeshLambertMaterial({color: 0x00ffcc});
+  var materialWhite = new THREE.MeshLambertMaterial({color: 0xffffff});
   materialWhite.transparent = true;
-  materialWhite.opacity = 0.2;
-
+  materialWhite.opacity = 0.3;
 
 
 
@@ -72,53 +88,76 @@ camera.position.z = 800;
 
 
 var currentIndex = 0;
-var spread = 250;
+var spread = 120;
 
 var nodeSize = 5;
 
 var linkWidth = 1.5;
 
-var currentX = 0;
-var currentY = 0;
-var currentZ = 0;
-
 var nodeCount = 10;
 
 
-var exclusionZone = 50;
-var deviationLimit = 3;
-var connectionLimit = 2.5;
+var exclusionZone = 20;
+var deviationLimit = 4;
+var connectionLimit = 1;
 
-for(var i = 0; i < nodeCount; i++){
+var clusterDistance = 100;
+
+createCluster(new THREE.Vector3(0, 0, 0), 8);
+
+createCluster(new THREE.Vector3(clusterDistance, clusterDistance, clusterDistance*2), 7);
+createCluster(new THREE.Vector3(-clusterDistance, clusterDistance, clusterDistance*2), 7);
+createCluster(new THREE.Vector3(clusterDistance, -clusterDistance, -clusterDistance*2), 7);
+createCluster(new THREE.Vector3(clusterDistance, clusterDistance, -clusterDistance*2), 7);
 
 
-currentX = randomExclusion(1*spread, -0.5*spread, currentX, exclusionZone);
-currentY = randomExclusion(1*spread, -0.5*spread, currentY, exclusionZone);
-currentZ = randomExclusion(1*spread, -0.5*spread, currentZ, exclusionZone);
 
 
-    //alert(currentX + " " + currentY + " " + currentZ);
-    createNode(currentX, currentY, currentZ, [arrNode[0]]);
-}
+function createCluster(seed, numberOfNodes){
 
-for(var i = 0; i < nodeCount; i++){
-  var connections = randomInt(connectionLimit, 1.5);
-  var deviation;
+  var nodeCluster = new Array();
 
-  for(var j = 0; j < connections; j++){
-    deviation = -(nodeCount + 1);
-    while(((i + deviation) < 0) || ((i + deviation) >= nodeCount) || (deviation == 0)){
-      deviation = randomInt(deviationLimit, -deviationLimit/2);
-    }
-    //alert("Node Count: " + nodeCount + " Selected Index: " + (i + deviation) + " Current Node: " + i );
-    arrNode[i].connected[j] = (arrNode[i + deviation]);
+  nodeCluster.push(createNode(seed.x, seed.y, seed.z, [nodeCluster[0]]));
+
+  var currentX = seed.x;
+  var currentY = seed.y;
+  var currentZ = seed.z;
+
+  for(var i = 0; i < (numberOfNodes - 1); i++){
+
+
+  currentX = randomExclusion(1*spread, -0.5*spread, currentX, exclusionZone);
+  currentY = randomExclusion(1*spread, -0.5*spread, currentY, exclusionZone);
+  currentZ = randomExclusion(1*spread, -0.5*spread, currentZ, exclusionZone);
+
+      //alert(currentX + " " + currentY + " " + currentZ);
+      nodeCluster.push(createNode(currentX, currentY, currentZ, [arrNode[0]]));
   }
+
+  for(var i = 0; i < numberOfNodes; i++){
+    var connections = randomInt(connectionLimit, 1.5);
+    var deviation;
+
+    for(var j = 0; j < connections; j++){
+      deviation = -(numberOfNodes + 1);
+      while(((i + deviation) < 0) || ((i + deviation) >= numberOfNodes) || (deviation == 0)){
+        deviation = randomInt(deviationLimit, -deviationLimit/2);
+      }
+      //alert("Node Count: " + nodeCount + " Selected Index: " + (i + deviation) + " Current Node: " + i );
+      nodeCluster[i].connected[j] = (nodeCluster[i + deviation]);
+    }
+  }
+
+  arrNode.push(nodeCluster);
+
 }
+
+
 
 function randomExclusion(max, min, exclusion, zone){
   var x = exclusion;
   while((x < (exclusion + zone)) && (x > (exclusion - zone))){
-    x = exclusion/1.1 + (Math.random()*max) + min;
+    x = exclusion + (Math.random()*max) + min;
   }
   return x;
 }
@@ -158,6 +197,20 @@ function createNode(x, y, z, arr){
    return node;
 
 }
+
+
+
+function createLink(linkMesh, startNode, endNode){
+   link = {
+     mesh: linkMesh,
+     start: startNode,
+     end: endNode
+   }
+   startNode.startLinks.push(link);
+   endNode.endLinks.push(link);
+
+}
+
 
 function drawNode(node){
   var nodeShape = new THREE.SphereGeometry((Math.random()*0.5) + nodeSize, 8, 8);
@@ -211,23 +264,11 @@ function drawNode(node){
 
         //nodeMesh.add( line );
 
-
-
     }
   }
 }
 
 
-function createLink(linkMesh, startNode, endNode){
-   link = {
-     mesh: connectorMesh,
-     start: startNode,
-     end: endNode
-   }
-   startNode.startLinks.push(link);
-   endNode.endLinks.push(link);
-
-}
 
 /**
 var pl = new THREE.PointLight(0x0000ff, 2.5, 100, 2);
@@ -245,8 +286,6 @@ scene.add(nodeMesh)
 
 
 }
-
-
 
 
 
@@ -275,9 +314,7 @@ function updateLink(node){
            node.endLinks[i].mesh.lookAt(newPosition);
         }
 
-
 }
-
 
 render();
 
@@ -287,7 +324,7 @@ function render(){
  var nodeDuration = 150;
 
 
-if(Math.random() > 0.96){
+if(Math.random() > 0.98){
   for(var i = 0; i < arrNode.length; i++){
     if(arrNode[i].active == 0){
       if(Math.random() > 0.96){
