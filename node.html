@@ -13,16 +13,10 @@
 
 <body>
 
+
 <canvas id="galaxy"> </canvas>
 
 <h1> JH Design </h1>
-
-
-
-
-
-
-
 
 
 <script src="three.js"> </script>
@@ -47,6 +41,8 @@ camera.position.z = 1000;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.5;
   controls.enablePan = false;
+  scene.fog = new THREE.Fog(0x101010, 500, 1700);
+
 
 
   var ambient = new THREE.AmbientLight(0xffffff, 0.4);
@@ -88,7 +84,7 @@ camera.position.z = 1000;
 
 
 var currentIndex = 0;
-var spread = 120;
+var spread = 135;
 
 var nodeSize = 5;
 
@@ -103,14 +99,13 @@ var connectionLimit = 1;
 
 var clusterDistance = 100;
 
+
 createCluster(new THREE.Vector3(0, 0, 0), 8);
 
 createCluster(new THREE.Vector3(clusterDistance, clusterDistance, clusterDistance*2), 7);
 createCluster(new THREE.Vector3(-clusterDistance, clusterDistance, clusterDistance*2), 7);
 createCluster(new THREE.Vector3(clusterDistance, -clusterDistance, -clusterDistance*2), 7);
 createCluster(new THREE.Vector3(clusterDistance, clusterDistance, -clusterDistance*2), 7);
-
-
 
 
 function createCluster(seed, numberOfNodes){
