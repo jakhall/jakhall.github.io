@@ -30,7 +30,24 @@ body {
 	100% {
 		transform: translatey(0px);
 	}
+
 }
+
+@font-face {
+    font-family: JaraBook;
+    src: url(fonts/JuraBook.ttf);
+}
+
+h1{
+  font-family: JaraBook;
+  top: 8%;
+  left: 2.5%;
+  font-size: 3em;
+  position: absolute;
+  color: #fff;
+  z-index: 1;
+}
+
 
 #title h1 {
   color: #fff;
