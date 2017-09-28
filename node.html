@@ -81,16 +81,17 @@ material.opacity = 0.15;
 
 for(var i = 0; i < 50; i++){
   var geometry = new THREE.Geometry();
-  geometry.vertices.push(new THREE.Vector3(width/2, (-height/2) + (i*(height/30)), -1000));
-  geometry.vertices.push(new THREE.Vector3(-width/2, (-height/2) + (i*(height/30)), -1000));
+  var size = 50;
+  geometry.vertices.push(new THREE.Vector3(width/2, (-height/2) + (i*size), -1000));
+  geometry.vertices.push(new THREE.Vector3(-width/2, (-height/2) + (i*size), -1000));
   var line = new THREE.Line(geometry, material);
   scene.add(line);
 }
 
 for(var i = 0; i < 50; i++){
   var geometry = new THREE.Geometry();
-  geometry.vertices.push(new THREE.Vector3((-width/2) + (i*(width/50)), height/2, -1000));
-  geometry.vertices.push(new THREE.Vector3((-width/2) + (i*(width/50)), -height/2, -1000));
+  geometry.vertices.push(new THREE.Vector3((-width/2) + (i*50), height/2, -1000));
+  geometry.vertices.push(new THREE.Vector3((-width/2) + (i*50), -height/2, -1000));
   var line = new THREE.Line(geometry, material);
   scene.add(line);
 }
