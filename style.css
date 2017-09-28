@@ -45,7 +45,7 @@ h1{
   font-size: 3em;
   position: absolute;
   color: #fff;
-  z-index: 1;
+  z-index: 3;
 }
 
 
@@ -61,7 +61,18 @@ h1{
   animation: float 5s ease-in-out infinite;
 }
 
+#grid {
+  z-index: 1;
+  position:absolute;
+  top: 0%;
+}
 
+#galaxy {
+  z-index: 2;
+  position: absolute;
+  top: 0%;
+
+}
 /*
 Sort Page
 */
