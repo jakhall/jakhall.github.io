@@ -11,11 +11,128 @@
 </head>
 
   <body>
-    <section id="title">
-      <div class="title-container">
-        <h1> JH Design </h1>
-      </div>
-    </section>
+    <script src="three.js"> </script>
+    <script src="nodes.js"> </script>
+    <script src="grid.js"> </script>
+    <script src="jquery-3.2.1.min.js"> </script>
+    <script src="jquery.panelSnap.js"> </script>
+
+<section data-panel="1" id="title">
+    <canvas id="grid"> </canvas>
+    <canvas id = "galaxy"> </canvas>
+    <div class="menu">
+      <a href="" data-panel="1">Home</a>
+      <p class="break"> | </p>
+      <a href="" data-panel="2">About Me</a>
+      <p class="break"> | </p>
+      <a  href=""data-panel="3">Projects</a>
+      <p class="break"> | </p>
+      <a href="" data-panel="4">Reading</a>
+    </div>
+
+        <h2> JH DESIGN </h2>
+        <div class="sub_text">  built with <a href="https://threejs.org/"> three.js </a> </div>
+
+      <div id="title-text">
+        <h1 class="take"> Take  </h1>
+        <h1 class="your"> your </h1>
+        <h1 class="ti"> Time </h1>
+       </div>
+
+       <div id="arrow-container">
+         <img class="arrow" src="down-arrow.png"/>
+       </div>
+
+
+</section>
+
+<section data-panel="2"  id="about-me">
+
+  Lorem ipsum dolor sit amet, prima melius disputationi id mea, error fierent definiebas ad usu. In est iriure consectetuer, ex quo vivendo civibus. Sed an labore iudicabit, sed in hinc fugit numquam. Erat movet temporibus ex pro. Ut eam meis invidunt, nec ei nobis adipiscing.
+
+  Ea inermis accusata instructior sit. Vivendo salutandi ei sea. Cum te populo prodesset incorrupte, ut nibh error appetere sit, qui porro quaeque at. Saepe appetere ei eum, ei populo molestie eam.
+
+</section>
+
+<section data-panel="3" id="projects">
+
+  Lorem ipsum dolor sit amet, prima melius disputationi id mea, error fierent definiebas ad usu. In est iriure consectetuer, ex quo vivendo civibus. Sed an labore iudicabit, sed in hinc fugit numquam. Erat movet temporibus ex pro. Ut eam meis invidunt, nec ei nobis adipiscing.
+
+  Ea inermis accusata instructior sit. Vivendo salutandi ei sea. Cum te populo prodesset incorrupte, ut nibh error appetere sit, qui porro quaeque at. Saepe appetere ei eum, ei populo molestie eam.
+
+</section>
+
+<section data-panel="4" id="reading">
+
+  Lorem ipsum dolor sit amet, prima melius disputationi id mea, error fierent definiebas ad usu. In est iriure consectetuer, ex quo vivendo civibus. Sed an labore iudicabit, sed in hinc fugit numquam. Erat movet temporibus ex pro. Ut eam meis invidunt, nec ei nobis adipiscing.
+
+  Ea inermis accusata instructior sit. Vivendo salutandi ei sea. Cum te populo prodesset incorrupte, ut nibh error appetere sit, qui porro quaeque at. Saepe appetere ei eum, ei populo molestie eam.
+
+</section>
+
+
+        <script>
+        var options = {
+  $menu: $('.menu'),
+  menuSelector: 'a',
+  panelSelector: '> section',
+  namespace: '.panelSnap',
+  onSnapStart: function(){},
+  onSnapFinish: function(){},
+  onActivate: function(){},
+  directionThreshold: 8,
+  slideSpeed: 300,
+  delay: 0,
+  easing: 'linear',
+  offset: 0,
+  navigation: {
+    keys: {
+      nextKey: false,
+      prevKey: false,
+    },
+    buttons: {
+      $nextButton: false,
+      $prevButton: false,
+    },
+    wrapAround: false,
+  }
+};
+
+/**
+
+<section id="floating_text">
+<h1 id="me"> me </h1>
+</section>
+
+
+**/
+
+$('body').panelSnap(options);
+
+          var nodes = new THREE.Nodes();
+          var grid = new THREE.Grid();
+          var canvas = document.getElementById('grid');
+          grid.init(canvas);
+          nodes.init(document.getElementById('galaxy'));
+
+          $(window).scroll(function() {
+              var scrollYpos = $(document).scrollTop();
+              var sOffSet = 40;
+              if (scrollYpos > sOffset) {
+                  $("#me").css({
+                      'position': 'fixed'
+                  });
+              } else {
+                  $("#me").css({
+                      'position': 'relative'
+                  });
+              }
+          });
+
+        </script>
+
+
+
   </body>
 
 
